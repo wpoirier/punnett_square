@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+
+<html>
+
+	<head>
+
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+
+		<title>Punnent's Square</title>
+
+
+		<style>
+
+			body 			{color: #fff; background-color:#C6C6C6; font-family: roboto}
+
+			h1 span 		{font-size: 16px; border-left: 1px solid white; margin-left: 8px; padding: 8px; color: #8c8c8c}
+			table 			{margin-top:20px; color:#8c8c8c;}
+			td  			{border:none; padding:30px; width: 80px; height:80px; background:white;}
+			td span 		{text-align: center; left: 17px; top: 15px; position: relative; font-weight: bold}
+			
+			tr:nth-child(1) td:nth-child(1) 	{border-radius: 10px 0 0 0}
+			tr:nth-child(1) td:nth-child(2) 	{border-radius: 0 10px 0 0}
+			tr:nth-child(2) td:nth-child(1) 	{border-radius: 0 0 0 10px}
+			tr:nth-child(2) td:nth-child(2) 	{border-radius: 0 0 10px 0}
+
+
+			.pea-ui				{min-height: 100px}
+			.pea-ui .pea 		{transform:scale(0.7);}
+
+			.pea-ui .pea-container {float:left; margin-left: 50px}
+
+			.pea-container 		{width: 50px; text-align: center; margin-bottom:10px;}
+			.pea-container span {top: 5px; position: relative; font-weight: bold;}
+			.pea, .static-pea 	{width: 54px; height: 54px; box-shadow: 5px 8px 0px #00000014; opacity: 1; border-radius: 25px; position: relative;}
+
+			.static-pea 		{opacity: 0.5} 
+
+			.pea:after 			{content: ""; background: #fffffb38 0% 0% no-repeat padding-box; position: absolute; z-index: 4; width: 47px; height: 47px; border-radius: 25px; left: 1px;}
+
+
+			.pea:before 		{content: ""; background: #fffffb38 0% 0% no-repeat padding-box; position: absolute; z-index: 4; width: 17px; height: 17px; border-radius: 25px; left: 10px; top:6px;}
+
+
+			.green-pea 			{background: #65B14F 0% 0% no-repeat padding-box;}
+
+			.yellow-pea			{background: #EFCE22 0% 0% no-repeat padding-box;}
+
+
+			.drag_area 			{width: 73px; height:80px; padding:5px 0 5px 10px; border: 1px solid #8c8c8c;}
+			.drag_area div span {position: relative; top :47px;}
+
+			.ratios 			{background: #d3d3d3}
+			#genomic_ratio, #phenotype_ratio 	{color: #777;}
+
+
+			#paternal_breeder_target {position: relative; left: 12em;}
+			#maternal_breeder_target {float: left; position: relative; top: 7em; margin-right: 15px;}
+
+
+
+			@media (min-width: 767px){
+
+				.ratios						{float: right; width: 50%; height:100vh; padding-top:20%;}
+				.ratios div					{margin-left: 5%;}
+				.ratios div.ratio-container	{margin-top: 20%;}
+
+				.container 					{width: 50%; float: left;}
+
+				.pea-ui .pea-container 		{float: unset; margin-left: unset}
+			
+			}
+
+		</style>
+
+
+		<link rel="preconnect" href="https://fonts.googleapis.com">
+		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+		<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300&display=swap" rel="stylesheet">
+
+
+	</head>
+
+	<body>
+
+		<div class="container">
+
+			<div class="headers">
+				
+				<h1>Interactive Graphic<span>Mendelian&nbsp;Inheritence</span> </h1>
+
+				<h3>By William Poirier</h3>
+				<p>Drag a pea into the Maternal and Paternal boxes to breed. A resulting Punnet square will generate along with the genomic and phenotypic ratios.</p>
+
+			</div>
+
+
+
+
+			<div class="pea-ui">
+
+				<div class="pea-container">
+					<div id="paternal-pea" class="pea yellow-pea" draggable="true" ondragstart="dragstart_handler(event, 'YY')" data-gene="YY"></div>
+					<span>YY</span>
+				</div>
+				
+				<div class="pea-container">
+					<div id="paternal-pea" class="pea yellow-pea" draggable="true" ondragstart="dragstart_handler(event, 'Yy')" data-gene="Yy"></div>
+					<span>Yy</span>
+				</div>
+
+				<div class="pea-container">
+					<div id="maternal-pea" class="pea green-pea"  draggable="true" ondragstart="dragstart_handler(event, 'yy')" data-gene="yy"></div>
+					<span>yy</span>
+				</div>
+
+			</div>
+
+
+
+			<div id="chart_container">	
+			
+				<div class="drag_area" id="paternal_breeder_target"   ondragover="dragoverHandler(event,'paternal')"   ondragleave="dragleaveHandler(event,'paternal')" ondrop="dropHandler(event, 'paternal')">
+					<label>Paternal</label>
+					<div id="paternal_pea_drop"></div>
+				</div>
+
+				<div class="drag_area" id="maternal_breeder_target" ondragover="dragoverHandler(event,'maternal')" ondragleave="dragleaveHandler(event,'maternal')" ondrop="dropHandler(event, 'maternal')">
+					<label>Maternal</label>
+					<div id="maternal_pea_drop"></div>
+				</div>
+
+
+				<table class="punnentt_chart">
+					<tbody>
+
+					<!--					
+					<tr>
+							<th></th>
+							<th><button class="phenotype_select paternal" data-phenotype="Y">Y</button></th>
+							<th><button class="phenotype_select paternal" data-phenotype="Y">Y</button></th>
+						</tr>
+					-->
+
+
+						<tr>
+							<!--<th><button class="phenotype_select maternal" data-phenotype="Y">Y</button></th>-->
+							<td>&nbsp;&nbsp;&nbsp;&nbsp;</td>
+							<td>&nbsp;&nbsp;&nbsp;&nbsp;</td>
+						</tr>
+
+
+						<tr>
+							<!--<th><button class="phenotype_select maternal" data-phenotype="Y">Y</button></th>-->
+							<td>&nbsp;&nbsp;&nbsp;&nbsp;</td>
+							<td>&nbsp;&nbsp;&nbsp;&nbsp;</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+		</div>
+
+
+		<div class="ratios">
+
+			<div class="ratio-container">
+				<h2>GENOMIC RATIO</h2>
+				<div id="genomic_ratio">&nbsp;</div>
+			</div>
+
+
+			<div class="ratio-container">
+				<h2>PHENOTYPIC RATIO</h2>
+				<div id="phenotype_ratio">&nbsp;</div>
+			</div>
+
+		</div>
+
+	</body>
+
+
+	<script src="punnett.js"></script>
+
+	<script>
+
+
+		document.addEventListener('DOMContentLoaded', function () {
+
+			var phenotypeButtons = 	document.querySelectorAll("button");	//document.getElementsByClassName("phenotype_select");
+
+			phenotypeButtons.forEach( function(element) {
+
+				element.addEventListener('click', togglePhenotype.bind(element) );
+
+			});
+		
+		}, false);
+
+
+		function dragstart_handler(event, gene){
+
+			//console.log("gene", gene)
+			event.dataTransfer.setData("text/plain", gene);
+
+		}
+
+		function dragoverHandler(event, gender){
+			event.preventDefault();
+			document.getElementById(gender + "_breeder_target").style.background = "white";
+		}
+
+		function dragleaveHandler(event, gender){
+			
+			event.preventDefault();
+			document.getElementById(gender + "_breeder_target").style.background = "";
+		
+		}
+
+
+
+		var gene_splice = {
+
+			paternal : "",
+			maternal : ""
+
+		};
+
+
+		function dropHandler(event, gender){
+			event.preventDefault();
+
+			document.getElementById(gender + "_breeder_target").style.background = "";
+
+			//console.log("event", event);
+			//console.log("this", this)
+
+			var gene = event.dataTransfer.getData("text");
+
+			//console.log("Drag gene", gene);
+
+			gene_splice[gender] = gene;
+
+			
+			var pea_container = document.getElementById(gender + "_pea_drop");
+			pea_container.classList.remove("green-pea", "yellow-pea");
+			pea_container.classList.add('static-pea', gene_classes[gene])
+			pea_container.innerHTML = `<span>${gene}</span>`
+
+			
+			if ( (gene_splice.paternal !== "") && (gene_splice.maternal !== "") ) {
+
+				var square = punnentSquare(gene_splice.paternal, gene_splice.maternal);
+		
+				updateSquare(square);
+			}
+
+		}
+
+
+
+
+
+
+	</script>
+
+
+</html>
+
